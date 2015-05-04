@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Path : MonoBehaviour {
+public class Path {
 
 	List<Vector3> waypoints = new List<Vector3>();
 	public int next = 0;

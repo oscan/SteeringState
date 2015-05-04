@@ -4,6 +4,7 @@ using System.Collections;
 public class StateMachine : MonoBehaviour {
 
 	public State currentState;
+	public string cur;
 	
 	void Update(){
 		if( currentState != null){
@@ -16,6 +17,7 @@ public class StateMachine : MonoBehaviour {
 			currentState.ExitState();
 		}
 		currentState = newState;
+		cur = currentState.ToString();
 		if(currentState != null){
 			currentState.EnterState();
 		}
