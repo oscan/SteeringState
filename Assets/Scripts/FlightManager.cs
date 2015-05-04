@@ -18,7 +18,6 @@ public class FlightManager : MonoBehaviour {
 
 	float last_orders;
 	
-	// Use this for initialization
 	void Awake () {
 		sm = GetComponent<StateMachine>();
 		sb = GetComponent<SteeringBehaviours>();
@@ -29,16 +28,16 @@ public class FlightManager : MonoBehaviour {
 		hull = stats.maxHull;
 	}
 	void Start () {
+		//get initial orders
 		LookingForOrders(0);
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		if(stats.maxShields > 0) {
 			shields += Time.deltaTime * 0.3f;
 			shields = Mathf.Min(shields,stats.maxShields);
 		}
-		if(Time.time - last_orders > 10f){
+		if(Time.time - last_orders > 10f){ //re-evaluate orders every 10 seconds. (i.e. don't get too sidetracked from your bombing run because you were attacked)
 			LookingForOrders(0);
 		}
 	}
@@ -47,6 +46,8 @@ public class FlightManager : MonoBehaviour {
 		if(i >= orders.Length){
 			return;
 		}
+		
+		//grab target based on Orders hierarchy. (e.g bombers for after Capitol ships first, see inspector)
 		Orders order = orders[i];
 		currentOrders = Orders.None;
 		sb.target = null;
@@ -85,11 +86,11 @@ public class FlightManager : MonoBehaviour {
 			break;
 			case Orders.AttackFighters :
 				otherTeam = GameObject.FindGameObjectsWithTag(otherTag);
-				FilterTeam(otherTeam, ShipClass.Fighter, true, ref targets);
+				FilterTeam(otherTeam, ShipClass.Fighter, true, ref targets); //find all fighters on other team
 				foreach(GameObject tar in targets) {
 					if(tar.activeSelf) {
 						float dist = Vector3.Distance(tar.transform.position, transform.position);
-						if(dist < farthest){
+						if(dist < farthest){ //attack the nearest
 							target = tar;
 							farthest = dist;
 						}
@@ -100,15 +101,23 @@ public class FlightManager : MonoBehaviour {
 				//find all bombers on my team.
 				myTeam = GameObject.FindGameObjectsWithTag(gameObject.tag);
 				List<GameObject> bombers = new List<GameObject>();
-				FilterTeam(myTeam, ShipClass.Bomber, true, ref bombers);
-				Undefended(bombers, ref undefended);
+				FilterTeam(myTeam, ShipClass.Bomber, true, ref bombers); //find all the bombers on the team
+				Undefended(bombers, ref undefended); //see if any are being attacked unchecked.
 				if(undefended.Count > 0){
-					target = Defend(undefended);
+					target = Defend(undefended); //go after an unopposed attacked
 				} else {
-					target = Defend(bombers);
+					target = Defend(bombers); //otherwise pick a random.
 				}
 			break;
 			case Orders.DefendCapitol :
+				myTeam = GameObject.FindGameObjectsWithTag(gameObject.tag);		
+				FilterTeam(myTeam, ShipClass.Capitol, false, ref attacked);
+				Undefended(attacked, ref undefended);
+				if(undefended.Count > 0){
+					target = Defend(undefended);
+				} else {
+					target = Defend(attacked);
+				}
 			break;
 			case Orders.DefentFighters :
 				myTeam = GameObject.FindGameObjectsWithTag(gameObject.tag);		
@@ -117,7 +126,7 @@ public class FlightManager : MonoBehaviour {
 				if(undefended.Count > 0){
 					target = Defend(undefended);
 				} else {
-					target = RandomTarget(attacked);
+					target = Defend(attacked);
 				}
 			break;
 			case Orders.Patrol:
@@ -202,6 +211,7 @@ public class FlightManager : MonoBehaviour {
 		return null;
 	}
 	
+	//FIRE!
 	public void FireLasers(Vector3 forward) {
 		foreach(Laser laser in lasers){
 			laser.Fire(forward, stats.laserPower, gameObject);
@@ -213,6 +223,7 @@ public class FlightManager : MonoBehaviour {
 		}
 	}
 	
+	//got hit by lasers or missles. Fighters take evasive action and engage attacker.
 	public void TakeTamage(float p, GameObject owner) {
 		if(stats.shipClass != ShipClass.Capitol) {
 			sm.changeState(new AttackEvadeState(gameObject, owner));
@@ -231,6 +242,7 @@ public class FlightManager : MonoBehaviour {
 	}
 	public void Explode(){
 		//Invoke("CleanUp", 2f);
+		//was going to make the section of the ships fly off. alas no time.
 		gameObject.SetActive(false);
 	}
 	public void CleanUp(){

@@ -4,6 +4,7 @@ public enum ShipClass { Capitol, SmallCapitol, Fighter, Bomber, Interceptor };
 
 public class ShipStats : MonoBehaviour {
 		
+		//vital statatics
 		public ShipClass shipClass;
 
 		public float maxSpeed = 100f;

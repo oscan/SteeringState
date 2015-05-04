@@ -32,9 +32,22 @@ public class AttackEvadeState : State {
 		if(sb.target != null && sb.target.activeSelf) {
 			Vector3 toTarget = sb.target.transform.position - gameObject.transform.position;
 			float dist = toTarget.magnitude;
-				
+			
+			//we are back out of laser range, turn around and make another run.
 			if(sb.evadeEnabled && dist > stats.laserRange*1.5){
 				sm.changeState(new AttackState(gameObject, attack_target));
+			}
+			if(fm.lasers.Length > 0) {
+				if(dist < stats.laserRange && Vector3.Dot (toTarget, gameObject.transform.forward) > stats.firingCone){
+					//pew pew pew
+					fm.FireLasers(gameObject.transform.forward);
+				}
+			}
+			if(fm.missles.Length > 0) {
+				if(dist < stats.missleRange && Vector3.Dot (toTarget, gameObject.transform.forward) > stats.firingCone){
+					//pew pew pew
+					fm.FireMissles(gameObject.transform.forward);
+				}
 			}
 		} else {
 			fm.LookingForOrders(0);

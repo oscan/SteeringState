@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Camera : MonoBehaviour {
 	
+	//Press Space to switch to random target. alternates between rebels and imperials
+	
 	SteeringBehaviours sb;
 	// Use this for initialization
 	void Start () {
