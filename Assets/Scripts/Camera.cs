@@ -17,6 +17,9 @@ public class Camera : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.Space)){
 			JumpToRandom();
 		}
+		if(Input.GetKeyDown(KeyCode.R)){
+			Application.LoadLevel(Application.loadedLevel);
+		}
 	}
 	
 	void JumpToRandom(){
